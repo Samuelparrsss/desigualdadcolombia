@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La matrícula imposible</title>
+<style>
+:root{--bg:#eef0f3;--card:#fff;--ink:#14213d;--mut:#5b6478;--line:#d3d8e0;--red:#c1121f;--green:#1b7f5c;--btn:#14213d;--btnt:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141f;--card:#1a2030;--ink:#eef0f5;--mut:#9aa3b8;--line:#2e3650;--red:#ff5a66;--green:#3ec99a;--btn:#eef0f5;--btnt:#10141f}}
+:root[data-theme="dark"]{--bg:#10141f;--card:#1a2030;--ink:#eef0f5;--mut:#9aa3b8;--line:#2e3650;--red:#ff5a66;--green:#3ec99a;--btn:#eef0f5;--btnt:#10141f}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:17px/1.5 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:520px;margin:0 auto;padding:22px 20px 40px}
+h1,h2{font-family:Georgia,"Times New Roman",serif;line-height:1.15;margin:0 0 14px}
+h1{font-size:2.5rem}h2{font-size:1.7rem}
+p{margin:0 0 14px}.mut{color:var(--mut);font-size:.92rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px;margin:0 0 16px}
+button{font:inherit;font-weight:600;cursor:pointer;width:100%;padding:15px 16px;margin:0 0 10px;border-radius:6px;border:2px solid var(--btn);background:var(--btn);color:var(--btnt)}
+button.alt{background:transparent;color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--red);transition:width .8s ease}
+.top{margin:0 0 18px}.top b{font-size:.85rem;color:var(--mut);font-weight:600}
+.fail{border-left:5px solid var(--red);padding:10px 14px;margin:0 0 14px;background:var(--card);font-weight:600}
+input[type=range]{width:100%;margin:10px 0 4px;accent-color:var(--ink)}
+.lab{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mut)}
+.lane{margin:0 0 20px}.lane b{display:block;margin-bottom:6px}
+.lane .bar i{transition:width 1.6s ease}
+.g i{background:var(--green)}
+.big{font-family:Georgia,serif;font-size:1.5rem;line-height:1.25;margin:0 0 14px}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){.bar i,.lane .bar i{transition:none}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+// Configuración del formulario (pegar aquí el enlace de Google Forms y los códigos entry.XXXX de cada pregunta)
+var FORM={url:"https://docs.google.com/forms/d/e/1FAIpQLScuJ8pL9y_vYptUaTDIWNseWn8F45icQSbysCqRtrKdjX25YA/viewform",pre:"",post:""};
+
+var LBL=["Solo esfuerzo","Más esfuerzo","Mitad y mitad","Más recursos","Solo recursos"];
+var P=[
+{n:"Madre joven",t:"Tienes 17 años, estás embarazada y acabas de graduarte del colegio.",s:[
+["Costo","La matrícula cuesta $2.400.000 por semestre. Tu saldo es $0.","Pedir prestado","Buscar una beca","Nadie cerca puede prestarte esa cifra, y las becas ya no tienen cupos."],
+["Tiempo","Las clases son de 7 a.m. a 1 p.m. y tu bebé no tiene quien lo cuide.","Pagar cuidado","Llevarlo contigo","El cuidado cuesta más de lo que ganas, y en el salón no admiten bebés."],
+["Trato","En la entrevista miran tu embarazo y te dicen: «Mejor espere un año».","Insistir","Esperar","No te garantizan nada. Pasa un año y la plata sigue sin aparecer."],
+["Información","Alguien dice que existen opciones gratuitas, pero nadie te explica cómo entrar.","Averiguar sola","Preguntar","Las páginas son confusas y nadie sabe darte una respuesta clara."]]},
+{n:"Joven que trabaja",t:"Terminaste el colegio. En tu casa necesitan que aportes y ya tienes un trabajo.",s:[
+["Costo","La matrícula cuesta $2.400.000 por semestre. Ganas $1.400.000 y la mitad va para tu casa.","Ahorrar","Pedir un crédito","Ahorrar tomaría años, y el crédito exige un codeudor que no tienes."],
+["Tiempo","Tus turnos son de lunes a sábado. Las clases chocan con tu horario.","Pedir permiso","Cambiar de turno","Tu jefe dice que no. Si faltas, pierdes el empleo."],
+["Trato","Te dicen que sin título solo calificas para los puestos peor pagados.","Aceptar","Buscar otro empleo","Todos los empleos que piden menos requisitos pagan menos."],
+["Información","Escuchaste que hay becas y cursos gratis, pero no sabes cuáles son ni cuándo abren.","Buscar en internet","Preguntar en el colegio","Las fechas ya pasaron, y en el colegio nadie te hizo seguimiento."]]},
+{n:"Mujer en el trabajo",t:"Llevas años trabajando en retail. Quieres estudiar para crecer, pero no te toman en serio.",s:[
+["Trato","Tu jefe dice que los hombres son más hábiles y te asigna las tareas básicas.","Demostrar que puedes","Quejarte","Haces el doble y nada cambia. Quejarte te deja marcada."],
+["Ascenso","Abre un puesto de supervisión. Piden título profesional.","Postularte igual","Esperar otra vacante","Descartan tu hoja de vida sin leerla. La siguiente vacante pide lo mismo."],
+["Tiempo","Las clases nocturnas chocan con tus turnos y el transporte.","Pedir cambio de turno","Estudiar los domingos","No te cambian el turno, y casi ningún programa abre los domingos."],
+["Costo","La matrícula cuesta $2.400.000 por semestre. Tu sueldo no alcanza para eso y el arriendo.","Ahorrar","Pedir un crédito","El ahorro no alcanza. El crédito te deja endeudada antes de empezar."]]},
+{n:"Sin dinero para la matrícula",t:"Sacaste buenas notas. Quieres entrar a la universidad, pero tu familia no tiene cómo pagarla.",s:[
+["Costo","La matrícula cuesta $2.400.000 por semestre. Tu familia no tiene ese dinero.","Pedir una beca","Pedir un crédito","Hay muchos aspirantes para pocas becas. El crédito pide un codeudor."],
+["Gastos","Además de la matrícula están los libros, el transporte y la comida diaria.","Buscar trabajo","Estudiar sin libros","Con un empleo no alcanzas a estudiar. Sin libros te quedas atrás."],
+["Apoyo","Nadie en tu familia ha ido a la universidad. No saben cómo guiarte.","Averiguar sola","Pedir ayuda","Los trámites son largos y confusos. Pedir ayuda toma semanas."],
+["Tiempo","Mientras averiguas, se cierran las inscripciones.","Esperar el próximo semestre","Buscar otra opción","Esperar significa más tiempo sin ingresos. Las otras opciones también cuestan."]]}
+];
+var S={p:null,i:0,pre:3,post:3,done:false};
+var app=document.getElementById("app");
+
+function go(h){app.innerHTML=h;window.scrollTo(0,0)}
+function slider(id,v){return '<input type="range" id="'+id+'" min="1" max="5" value="'+v+'" aria-label="De esfuerzo a recursos"><div class="lab"><span>Esfuerzo</span><span>Recursos</span></div><p class="mut" id="'+id+'t" style="text-align:center;margin-top:8px">'+LBL[v-1]+'</p>'}
+function bindSlider(id,k){var e=document.getElementById(id);e.oninput=function(){S[k]=+e.value;document.getElementById(id+"t").textContent=LBL[e.value-1]}}
+
+function intro(){
+ go('<h1>La matrícula imposible</h1><p class="big">Inscríbete a la universidad. Si puedes.</p><p>Vas a vivir una vida que no elegiste. Tienes una sola oportunidad y dura 2 minutos.</p><button id="b">Empezar</button><p class="mut">Experiencia basada en entrevistas reales sobre el acceso a la educación superior. Los montos son de ejemplo.</p>');
+ document.getElementById("b").onclick=function(){S.p=P[Math.floor(Math.random()*P.length)];S.i=0;profile()}
+}
+function profile(){
+ go('<p class="mut">Te tocó esta vida</p><h2>'+S.p.n+'</h2><div class="card">'+S.p.t+'</div><p><b>Antes de empezar:</b> ¿para entrar a estudiar pesa más el esfuerzo o los recursos?</p><div class="card">'+slider("pre",S.pre)+'</div><button id="b">Continuar</button>');
+ bindSlider("pre","pre");document.getElementById("b").onclick=step;
+}
+function bar(){var o=100-25*S.i;return '<div class="top"><b>Oportunidades que te quedan: '+o+'%</b><div class="bar"><i style="width:'+o+'%"></i></div></div>'}
+function step(){
+ var s=S.p.s[S.i];
+ go(bar()+'<h2>'+s[0]+'</h2><div class="card">'+s[1]+'</div><div id="ch"><button id="a" class="alt">'+s[2]+'</button><button id="c" class="alt">'+s[3]+'</button></div><div id="r"></div>');
+ function pick(){
+  document.getElementById("ch").classList.add("hide");
+  S.i++;
+  document.getElementById("r").innerHTML='<div class="fail">'+s[4]+'</div><button id="n">Continuar</button>';
+  document.querySelector(".bar i").style.width=(100-25*S.i)+"%";
+  document.querySelector(".top b").textContent="Oportunidades que te quedan: "+(100-25*S.i)+"%";
+  document.getElementById("n").onclick=S.i<4?step:denied;
+ }
+ document.getElementById("a").onclick=pick;document.getElementById("c").onclick=pick;
+}
+function denied(){
+ go(bar()+'<h2>Solicitud no completada</h2><p class="big">No faltó esfuerzo. Faltaron oportunidades.</p><button id="b">Ver qué pasó al lado</button>');
+ document.getElementById("b").onclick=contrast;
+}
+function contrast(){
+ go('<h2>Al mismo tiempo, otra persona</h2><p>Mismas notas y mismas ganas, pero con dinero, tiempo y apoyo en casa.</p><div class="lane"><b>Tú</b><div class="bar"><i id="l1" style="width:0"></i></div></div><div class="lane g"><b>Con recursos</b><div class="bar"><i id="l2" style="width:0"></i></div><p class="mut" id="ok" style="margin-top:6px;opacity:0">Matriculada en 5 minutos.</p></div><button id="b">Continuar</button>');
+ setTimeout(function(){document.getElementById("l1").style.width="12%";document.getElementById("l2").style.width="100%";setTimeout(function(){document.getElementById("ok").style.opacity=1},1600)},200);
+ document.getElementById("b").onclick=final;
+}
+function final(){
+ go('<h2>Esto es lo que vive quien no pudo estudiar.</h2><div class="card"><p>Esta experiencia se basa en el testimonio de una mujer que fue madre a los 17 años y no pudo entrar a la universidad por falta de recursos. Después enfrentó trato desigual en el trabajo por ser mujer. Hoy sigue queriendo estudiar.</p></div><p><b>Ahora, ¿qué pesa más para entrar a estudiar?</b></p><div class="card">'+slider("post",S.post)+'</div><button id="b">Ver mi respuesta</button>');
+ bindSlider("post","post");document.getElementById("b").onclick=actions;
+}
+function actions(){
+ var d=LBL[S.post-1]==LBL[S.pre-1]?"Tu respuesta no cambió: "+LBL[S.post-1]+".":"Antes dijiste «"+LBL[S.pre-1]+"». Ahora dices «"+LBL[S.post-1]+"».";
+ var f=FORM.url;
+ if(f&&FORM.pre&&FORM.post)f+="?usp=pp_url&"+FORM.pre+"="+encodeURIComponent(LBL[S.pre-1])+"&"+FORM.post+"="+encodeURIComponent(LBL[S.post-1]);
+ go('<h2>'+d+'</h2><p>Por favor responde este formulario para medir cómo cambió tu perspectiva después de la experiencia.</p>'+(f?'<button id="f">Responder el formulario</button>':'')+'<button id="w" class="alt">Compartir con alguien</button><button id="r" class="alt">Vivir otra vida</button>');
+ if(f)document.getElementById("f").onclick=function(){window.open(f,"_blank")};
+ document.getElementById("w").onclick=function(){
+  var m="Intenta entrar a la universidad con la vida que te toque. Casi nadie lo logra: "+location.href;
+  if(navigator.share){navigator.share({text:m}).catch(function(){})}else{window.open("https://wa.me/?text="+encodeURIComponent(m),"_blank")}
+ };
+ document.getElementById("r").onclick=intro;
+}
+intro();
+</script>
+</body>
+</html>
